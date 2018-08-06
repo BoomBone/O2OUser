@@ -4,6 +4,7 @@ import android.content.Context
 import android.os.Bundle
 import com.amap.api.location.AMapLocationClient
 import com.amap.api.location.AMapLocationClientOption
+import com.amap.api.services.nearby.NearbySearch
 
 /**
  * @author Ting
@@ -11,10 +12,10 @@ import com.amap.api.location.AMapLocationClientOption
  * @function 定位实现类
  */
 
-class GaodeLbsLayerImpl(context: Context) : ILbsLayer {
+class GaoDeLocationLayerImpl(context: Context) : ILbsLayer {
 
 
-    private val tag = "GaodeLbsLayerImpl"
+    private val tag = "GaoDeLocationLayerImpl"
     var mLocationChangeListener: CommonLocationChangeListener? = null
     var mLocationClient: AMapLocationClient = AMapLocationClient(context)
 
@@ -51,12 +52,6 @@ class GaodeLbsLayerImpl(context: Context) : ILbsLayer {
         mLocationChangeListener = locationChangeListener
     }
 
-    /**
-     * 设置附近的人监听
-     */
-    override fun setNearByListener() {
-
-    }
 
     override fun onCreate(state: Bundle?) {
     }

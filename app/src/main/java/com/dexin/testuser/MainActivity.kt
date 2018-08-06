@@ -12,7 +12,7 @@ import com.amap.api.location.AMapLocation
 import com.amap.api.services.core.LatLonPoint
 import com.amap.api.services.nearby.*
 import com.dexin.testuser.common.lbs.CommonLocationChangeListener
-import com.dexin.testuser.common.lbs.GaodeLbsLayerImpl
+import com.dexin.testuser.common.lbs.GaoDeLocationLayerImpl
 import com.dexin.testuser.common.lbs.ILbsLayer
 import kotlinx.android.synthetic.main.activity_main.*
 
@@ -35,7 +35,7 @@ class MainActivity : AppCompatActivity(), NearbySearch.NearbyListener {
     }
 
     private fun initTestMap(savedInstanceState: Bundle?) {
-        mLbsLayer = GaodeLbsLayerImpl(this)
+        mLbsLayer = GaoDeLocationLayerImpl(this)
         mLbsLayer.onCreate(savedInstanceState)
         mLbsLayer.setLocationChangeListener(object : CommonLocationChangeListener {
 
@@ -111,18 +111,11 @@ class MainActivity : AppCompatActivity(), NearbySearch.NearbyListener {
                     && nearbySearchResult.nearbyInfoList.size > 0) {
                 initRecyclerView(nearbySearchResult.nearbyInfoList)
                 mUserSize.text = "附近共有${nearbySearchResult.nearbyInfoList.size}个用户"
-                for (nearbyInfo in nearbySearchResult.nearbyInfoList) {
-                    val a = "周边搜索结果为size=${nearbySearchResult.nearbyInfoList.size},userId=${nearbyInfo.userID}," +
-                            "距离=${nearbyInfo.distance},驾驶距离=${nearbyInfo.drivingDistance},时间=${nearbyInfo.timeStamp},点=${nearbyInfo.point}"
-                    Log.e("main2", a)
-                }
             } else {
-                val a = "周边搜索结果为空";
-                Log.e("main2", a)
+                mUserSize.text = "周边搜索结果为空"
             }
         } else {
-            val a = "周边搜索出现异常，异常码为：$resultCode"
-            Log.e("main2", a)
+            mUserSize.text = "周边搜索出现异常，异常码为：$resultCode"
         }
     }
 
