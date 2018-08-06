@@ -4,7 +4,6 @@ import android.content.Context
 import android.os.Bundle
 import com.amap.api.location.AMapLocationClient
 import com.amap.api.location.AMapLocationClientOption
-import com.amap.api.services.nearby.NearbySearch
 
 /**
  * @author Ting
@@ -14,11 +13,8 @@ import com.amap.api.services.nearby.NearbySearch
 
 class GaoDeLocationLayerImpl(context: Context) : ILbsLayer {
 
-
-    private val tag = "GaoDeLocationLayerImpl"
     var mLocationChangeListener: CommonLocationChangeListener? = null
     var mLocationClient: AMapLocationClient = AMapLocationClient(context)
-
 
     init {
         //创建定位对象

@@ -9,32 +9,32 @@ import android.support.v4.content.ContextCompat
 import android.support.v7.widget.LinearLayoutManager
 import android.util.Log
 import com.amap.api.location.AMapLocation
-import com.amap.api.services.core.LatLonPoint
-import com.amap.api.services.nearby.*
-import com.dexin.testuser.common.lbs.CommonLocationChangeListener
-import com.dexin.testuser.common.lbs.GaoDeLocationLayerImpl
-import com.dexin.testuser.common.lbs.ILbsLayer
+import com.amap.api.services.nearby.NearbyInfo
+import com.amap.api.services.nearby.NearbySearchResult
+import com.dexin.testuser.common.lbs.*
 import kotlinx.android.synthetic.main.activity_main.*
 
-class MainActivity : AppCompatActivity(), NearbySearch.NearbyListener {
+class MainActivity : AppCompatActivity() {
 
     var latitude = 0.0
     var longitude = 0.0
     private val WRITE_COARSE_LOCATION_REQUEST_CODE = 0x11
-    private lateinit var mNearbySearch: NearbySearch
     private lateinit var mLbsLayer: ILbsLayer
+    private lateinit var mNearByLayer: INearByListener
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        mNearbySearch = NearbySearch.getInstance(this)
         requestPermission()
         initTestMap(savedInstanceState)
         initListener()
     }
 
     private fun initTestMap(savedInstanceState: Bundle?) {
+        /**
+         * 定位
+         */
         mLbsLayer = GaoDeLocationLayerImpl(this)
         mLbsLayer.onCreate(savedInstanceState)
         mLbsLayer.setLocationChangeListener(object : CommonLocationChangeListener {
@@ -57,13 +57,45 @@ class MainActivity : AppCompatActivity(), NearbySearch.NearbyListener {
             }
 
         })
+
+        /**
+         * 检索附近的人
+         */
+        mNearByLayer = GaoDeNearByLayerImp(this)
+        mNearByLayer.onCreate(savedInstanceState)
+        mNearByLayer.setNearByListener(object : CommonNearByListener {
+            override fun onUserInfoCleared(p0: Int) {
+
+            }
+
+            override fun onNearbyInfoUploaded(p0: Int) {
+
+            }
+
+            override fun onNearbyInfoSearched(nearbySearchResult: NearbySearchResult?, resultCode: Int) {
+                Log.e("main", "request返回=$resultCode")
+                if (resultCode == 1000) {
+                    Log.e("main", "request返回")
+                    if (nearbySearchResult?.nearbyInfoList != null
+                            && nearbySearchResult.nearbyInfoList.size > 0) {
+                        initRecyclerView(nearbySearchResult.nearbyInfoList)
+                        mUserSize.text = "附近共有${nearbySearchResult.nearbyInfoList.size}个用户"
+                    } else {
+                        mUserSize.text = "周边搜索结果为空"
+                    }
+                } else {
+                    mUserSize.text = "周边搜索出现异常，异常码为：$resultCode"
+                }
+            }
+
+        })
+
+
     }
 
     private fun initListener() {
-        mNearbySearch.addNearbyListener(this);
-
         button2.setOnClickListener {
-            searchNear()
+            mNearByLayer.searchNear(latitude, longitude)
         }
     }
 
@@ -78,59 +110,14 @@ class MainActivity : AppCompatActivity(), NearbySearch.NearbyListener {
     }
 
 
-    private fun searchNear() {
-        //设置搜索条件
-        val query = NearbySearch.NearbyQuery()
-        //设置搜索的中心点
-        query.centerPoint = LatLonPoint(latitude, longitude)
-        //设置搜索的坐标体系
-        query.coordType = NearbySearch.AMAP
-        //设置搜索半径
-        query.radius = 10000
-        //设置查询的时间
-        query.timeRange = 10000
-        //设置查询的方式驾车还是距离
-        query.setType(NearbySearchFunctionType.DISTANCE_SEARCH)
-        //调用异步查询接口
-        mNearbySearch.searchNearbyInfoAsyn(query)
-    }
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
 
-    /*-------------------------NearByListener-------------------------------------------*/
-    override fun onUserInfoCleared(p0: Int) {
-
-    }
-
-    override fun onNearbyInfoUploaded(p0: Int) {
-    }
-
-    override fun onNearbyInfoSearched(nearbySearchResult: NearbySearchResult?, resultCode: Int) {
-        Log.e("main", "request返回=$resultCode")
-        if (resultCode == 1000) {
-            Log.e("main", "request返回")
-            if (nearbySearchResult?.nearbyInfoList != null
-                    && nearbySearchResult.nearbyInfoList.size > 0) {
-                initRecyclerView(nearbySearchResult.nearbyInfoList)
-                mUserSize.text = "附近共有${nearbySearchResult.nearbyInfoList.size}个用户"
-            } else {
-                mUserSize.text = "周边搜索结果为空"
-            }
-        } else {
-            mUserSize.text = "周边搜索出现异常，异常码为：$resultCode"
-        }
     }
 
     private fun initRecyclerView(nearbyInfoList: MutableList<NearbyInfo>) {
         mNeatRv.layoutManager = LinearLayoutManager(this)
         mNeatRv.adapter = NearAdapter(R.layout.position_item, nearbyInfoList)
-    }
-
-
-    /*-------------------------NearByListener-------------------------------------------*/
-
-
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-
     }
 
     /*----------------------------生命周期------------------------------------------*/

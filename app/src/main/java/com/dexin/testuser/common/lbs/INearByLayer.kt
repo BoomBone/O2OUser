@@ -15,6 +15,11 @@ interface INearByListener {
     fun setNearByListener(commonNearByListener: CommonNearByListener)
 
     /**
+     * 搜索附近的人
+     */
+    fun searchNear(latitude: Double, longitude: Double)
+
+    /**
      * 生命周期函数
      */
     fun onCreate(state: Bundle?)
